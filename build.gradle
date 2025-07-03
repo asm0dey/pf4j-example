@@ -139,15 +139,15 @@ dependencies {
 
 // Groovy version
 def copyPlugins = tasks.register("copyPlugins", Copy) {
-    delete(fileTree("${project.projectDir}/extensions") {
+    delete(fileTree("${project.projectDir}/plugins") {
         include "*.jar"
     })
-    dependsOn(":plugins:say-leung:jar", ":plugins:say-sunk:jar")
-    from(project(":plugins:say-leung").tasks.jar)
-    from(project(":plugins:say-sunk").tasks.jar)
-    into "${project.projectDir}/extensions"
+    dependsOn(":extensions:say-leung:jar", ":extensions:say-sunk:jar")
+    from(project(":extensions:say-leung").tasks.jar)
+    from(project(":extensions:say-sunk").tasks.jar)
+    into "${project.projectDir}/plugins"
     doLast {
-        println "Plugins copied to ${project.projectDir}/extensions...."
+        println "Plugins copied to ${project.projectDir}/plugins...."
     }
 }
 

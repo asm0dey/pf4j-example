@@ -1,8 +1,8 @@
 rootProject.name = 'pf4j-example'
-include 'plugins'
 include 'commons'
-include 'plugins:say-leung'
-findProject(':plugins:say-leung')?.name = 'say-leung'
-include 'plugins:say-sunk'
-findProject(':plugins:say-sunk')?.name = 'say-sunk'
+include 'extensions'
+include 'extensions:say-leung'
+findProject(':extensions:say-leung')?.name = 'say-leung'
+include 'extensions:say-sunk'
+findProject(':extensions:say-sunk')?.name = 'say-sunk'
 
