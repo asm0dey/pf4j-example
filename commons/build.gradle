@@ -1,0 +1,11 @@
+plugins {
+    id("java")
+}
+
+group = "com.shuzhi"
+version = "0.0.1-SNAPSHOT"
+dependencies {
+    compileOnly("org.pf4j:pf4j"){
+        exclude(group: "org.slf4j")
+    }
+}

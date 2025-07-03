@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.shuzhi'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly('org.pf4j:pf4j-spring') {
+        exclude group: 'org.slf4j'
+    }
+    annotationProcessor 'org.pf4j:pf4j-spring'
+    implementation project(':commons')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Plugin-Id': 'say-leung',
+                'Plugin-Version': '1.0.0',
+                'Plugin-Provider': 'leung'
+        )
+    }
+}

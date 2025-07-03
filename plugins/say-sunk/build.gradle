@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.shuzhi'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly('org.pf4j:pf4j') {
+        exclude group: 'org.slf4j'
+    }
+    annotationProcessor 'org.pf4j:pf4j'
+    implementation project(':commons')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Plugin-Id': 'say-sunk',
+                'Plugin-Version': '1.0.0',
+                'Plugin-Provider': 'leung'
+        )
+    }
+}

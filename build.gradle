@@ -1,0 +1,156 @@
+buildscript {
+    version = project.projectVersion
+    jdkVersion = project.jdkVersion
+    // define all frameworks version like dependencies managements
+    ext {
+        version = [
+                "slf4jVersion"  : "2.0.16",
+                "logbackVersion": "1.5.9",
+                "junitVersion": "5.11.2",
+                'springDependencyManagementVersion':"1.1.6",
+                'pf4jVersion': "3.13.0",
+                'springPf4jVersion': '0.9.0'
+        ]
+        dependencies = [
+                "slf4j-api":"org.slf4j:slf4j-api:${version.slf4jVersion}",
+                "logback-classic": "ch.qos.logback:logback-classic:${version.logbackVersion}",
+                "junit-test":"org.junit.jupiter:junit-jupiter:${version.junitVersion}",
+                "pf4j":"org.pf4j:pf4j:${version.pf4jVersion}",
+                "springPf4j":"org.pf4j:pf4j-spring:${version.springPf4jVersion}"
+        ]
+    }
+
+    // Point to maven repositories
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
+    // Using spring dependency management.
+    dependencies {
+        classpath(
+                "io.spring.gradle:dependency-management-plugin:${project.ext.version.springDependencyManagementVersion}",
+        )
+    }
+}
+
+// Configuration all projects base settings.
+allprojects {
+    // Using something plugins
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'io.spring.dependency-management'
+
+
+    // The project package prefix.
+    group 'com.shuzhi'
+
+    version rootProject.version
+
+    // Point to maven repositories
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    // Using java version level to 21.
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(rootProject.jdkVersion)
+        }
+    }
+
+    // All sub project compile encoding using "UTF-8".
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+    configurations {
+        compile.exclude module: 'commons-logging'
+        all*.exclude module: 'commons-logging'
+        all*.exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+        all*.exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+    }
+
+    dependencyManagement {
+        dependencies {
+            for (depJar in rootProject.ext.dependencies) {
+                dependency depJar.value
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs += "--enable-preview"
+        options.release = 23
+    }
+
+    tasks.withType(Test).configureEach {
+        jvmArgs += "--enable-preview"
+    }
+
+    tasks.withType(JavaExec).configureEach {
+        jvmArgs += "--enable-preview"
+    }
+}
+
+subprojects {
+    version rootProject.version
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        testImplementation (
+                'org.junit.jupiter:junit-jupiter',
+                'ch.qos.logback:logback-classic',
+        )
+    }
+
+    test {
+        useJUnitPlatform()
+        // 启用 JDK 的预览特性
+        jvmArgs = ["--enable-preview"]
+    }
+}
+
+/// 对于主模块不做任何打包.
+jar {
+    enabled = false
+}
+
+group = 'com.shuzhi'
+dependencies {
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+    implementation("org.springframework.boot:spring-boot-starter-web:3.4.2")
+    implementation("org.pf4j:pf4j"){
+        exclude(group: 'org.slf4j')
+    }
+    // https://mvnrepository.com/artifact/org.pf4j/pf4j-spring
+    implementation("org.pf4j:pf4j-spring") {
+        exclude(group: 'org.slf4j')
+    }
+    implementation('org.slf4j:slf4j-api')
+    implementation('ch.qos.logback:logback-classic')
+    implementation(
+            project(':commons')
+    )
+}
+
+// Groovy version
+def copyPlugins = tasks.register("copyPlugins", Copy) {
+    delete(fileTree("${project.projectDir}/extensions") {
+        include "*.jar"
+    })
+    dependsOn(":plugins:say-leung:jar", ":plugins:say-sunk:jar")
+    from(project(":plugins:say-leung").tasks.jar)
+    from(project(":plugins:say-sunk").tasks.jar)
+    into "${project.projectDir}/extensions"
+    doLast {
+        println "Plugins copied to ${project.projectDir}/extensions...."
+    }
+}
+
+tasks.named("build"){
+    dependsOn(copyPlugins)
+}

@@ -1,0 +1,16 @@
+subprojects {
+    // Using something plugins
+    apply plugin: 'java'
+
+    dependencies {
+        compileOnly("org.pf4j:pf4j"){
+            exclude(group: "org.slf4j")
+        }
+        annotationProcessor('org.pf4j:pf4j')
+        implementation project(':commons')
+    }
+}
+
+jar {
+    enabled = false
+}
