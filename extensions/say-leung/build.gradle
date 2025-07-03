@@ -13,7 +13,7 @@ dependencies {
     compileOnly('org.pf4j:pf4j-spring') {
         exclude group: 'org.slf4j'
     }
-    annotationProcessor 'org.pf4j:pf4j-spring'
+    annotationProcessor 'org.pf4j:pf4j'
     implementation project(':commons')
 }
 
